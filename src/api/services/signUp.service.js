@@ -19,6 +19,7 @@ const signUpService = async (req, res) => {
             logger.error(`Insufficient data - username/password/email is required`);
             return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INSUFFICIENT_DATA);
         }
+
         //creation of payload
         const payload = {
             username,
@@ -26,6 +27,16 @@ const signUpService = async (req, res) => {
             role: USER_ROLE.USER, // As only one Admin in application so rest of the user will be (role:user)
             mobile_no,
         }
+
+        // As requirement is as of now only one admin.
+        // Checking whether there is any admin already present in the sytem, if not present then create one user as admin, and
+        // rest of the users who creating account will be (role:user)
+        // This will ensure that the first user who create the account will be admin and all others will be (role:user)
+        const users = await tblUsersMethod.fetchAll({ where : { role: USER_ROLE.ADMIN }, raw: true });
+        if(!users.length) {
+            payload.role = USER_ROLE.ADMIN;
+        }
+
         //generated the hash password of plain text password.
         payload.password = await userAuthUtils.hashPassword(password);
         

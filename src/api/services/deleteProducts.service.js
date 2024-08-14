@@ -31,6 +31,7 @@ const deleteProductsService = (req,res) => {
             logger.info('Products deleted successfully');
             return response.sendSuccessResponse(res, {Data: 'Products are deleted successfully'});
         }
+        logger.error(`Only Admin can delete the products`);
         return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.ADMIN_ALLOWED_TO_DELETE);
     } catch(error) {
         logger.error(`Error in delete products service `, error);

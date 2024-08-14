@@ -7,7 +7,7 @@ const userValidation = {
         body('password', 'Invalid credentials').exists({ checkFalsy: true }).isLength({ min: 5 }),
     ],
     signInUser: [
-        body('username', 'INVALID_CREDENTIALS').exists({ checkFalsy: true }).isEmail(),
+        body('email', 'INVALID_CREDENTIALS').exists({ checkFalsy: true }).isEmail(),
         body('password', 'INVALID_CREDENTIALS').exists({ checkFalsy: true }).isLength({ min: 5 }),
     ],
     updateUsers: [
