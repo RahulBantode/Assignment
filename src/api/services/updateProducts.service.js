@@ -22,24 +22,38 @@ const updateProductsService = async (req, res) => {
             return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
         }
 
+        // Here check only the valid products to update which is present in DB
+        const checkProductsExist = productsDetails.map((product) => product.id);
+        const productDataToUpdate = await tblProductsMethod.fetchAll({ 
+            attributes: ['id'],
+            where : {id:  checkProductsExist }, 
+            raw:true 
+        });
+
+        // Check whether the data of products to update is correct or not.
+        if(!productDataToUpdate.length) {
+            logger.error(`Wrong products ids ${checkProductsExist} to update`);
+            return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
+        }
+
         // Check whether the user who logged in is admin or not, only admin has rights to update the products details
         if(req.token.role === USER_ROLE.ADMIN) {
-            productsDetails.forEach(async (productData) => {
-                const product = await tblProductsMethod.fetchOne({ where : {id: productData?.id }, raw:true })
-                if(product) {
-                    // product_name/price/description will get updated w.r.t product id
-                    const payload = {
-                        product_name: productData?.productName,
-                        price: productData?.price,
-                        description: productData?.description,
-                        updated_at: Date.now(),
+            for(let i=0; i < productsDetails.length; i++) {
+                for(let j=0; j < productDataToUpdate.length; j++) {
+                    if(productsDetails[i].id === productDataToUpdate[j].id) {
+                        const payload = {
+                            product_name: productsDetails[i]?.product_name,
+                            price: productsDetails[i]?.price,
+                            description: productsDetails[i]?.description,
+                            status: productsDetails[i]?.status,
+                            updated_at: Date.now(),
+                        }
+                        await tblProductsMethod.update(payload, {where: { id: productDataToUpdate[j].id }});
                     }
-                    // updating the products into the system.
-                    await tblProductsMethod.update(payload, {where: { id: productData?.id }});
                 }
-                logger.info(`Product data updated successfully`);
-                return response.sendSuccessResponse(res, {Data: "Product are details updated successfully"});
-            })
+            }
+            logger.info(`Product data updated successfully`);
+            return response.sendSuccessResponse(res, {Data: "Product are details updated successfully"});
         }
         logger.error(`Only Admin can update the products details`);
         return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.ADMIN_ALLOWED_TO_UPDATE);

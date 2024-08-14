@@ -54,11 +54,20 @@ const API_CONSTANTS = {
             code: 'ADMIN_ALLOWED_TO_DELETE',
             message: 'Only admin can delete'
         },
+        ADMIN_ALLOWED_TO_CHANGE: {
+            code: 'ADMIN_ALLOWED_TO_CHANGE',
+            message: 'Only admin can change the status'
+        }
     },
     
     USER_ROLE: {
         ADMIN: 'admin',
         USER: 'user',
+    },
+
+    PRODUCTS_STATUS: {
+        ACTIVE: 1,
+        INACTIVE: 0,
     }
 
 };

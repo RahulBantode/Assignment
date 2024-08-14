@@ -29,7 +29,7 @@ const signUpService = async (req, res) => {
         }
 
         // As requirement is as of now only one admin.
-        // Checking whether there is any admin already present in the sytem, if not present then create one user as admin, and
+        // Checking whether admin already present in the sytem, if not present then create one user as admin, and
         // rest of the users who creating account will be (role:user)
         // This will ensure that the first user who create the account will be admin and all others will be (role:user)
         const users = await tblUsersMethod.fetchAll({ where : { role: USER_ROLE.ADMIN }, raw: true });

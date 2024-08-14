@@ -6,7 +6,7 @@ const userValidation = require('../validations/userValidation');
 const productValidation = require('../validations/productValidation');
 
 // /update route to update the users data 
-adminRouter.put('/update', 
+adminRouter.put('/update/user', 
     authenticate.verifyToken, // Authenticating the users by verifying the token
     userValidation.updateUsers, // request validations rules for updateUsers req.
     requestValidation, // validating the request body data
@@ -14,7 +14,7 @@ adminRouter.put('/update',
 );
 
 // /delete route to delete the users
-adminRouter.delete('/delete', 
+adminRouter.delete('/delete/user', 
     authenticate.verifyToken, 
     userValidation.deleteUsers,
     requestValidation,
@@ -35,6 +35,14 @@ adminRouter.delete('/product/delete',
     productValidation.deleteProducts,
     requestValidation,
     adminController.deleteProducts
+);
+
+// /control route to display products on website or not
+adminRouter.put('/product/control',
+    authenticate.verifyToken,
+    productValidation.controlProducts,
+    requestValidation,
+    adminController.controlProducts
 );
 
 // /products route to fetch all the products

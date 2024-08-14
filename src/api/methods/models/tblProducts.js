@@ -22,6 +22,10 @@ const tblProducts = sequelize.define(
             type: DataTypes.STRING(100),
             allowNull: true,
         },
+        status: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+        },
         created_at:{
             type: DataTypes.DATE,
             defaultValue: Date.now(),

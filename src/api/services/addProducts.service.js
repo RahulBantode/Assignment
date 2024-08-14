@@ -1,5 +1,5 @@
 const tblProductsMethod = require('../methods/tblProducts.method');
-const { HTTP_ERRORS, ERROR_MESSAGES, USER_ROLE } = require('../../constants/apiConstants');
+const { HTTP_ERRORS, ERROR_MESSAGES, PRODUCTS_STATUS } = require('../../constants/apiConstants');
 const StandardResponse = require('../standardResponse');
 
 const response = new StandardResponse();
@@ -19,11 +19,11 @@ const addProductsService = async (req, res) => {
             logger.error(`No products data available in request`);
             return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
         }
-
         // registering the products into the system.
-        await tblProductsMethod.bulkCreate(products)
-        response.sendSuccessResponse(res, {data: 'Products added successfully'});
-        
+        let productsData = await tblProductsMethod.bulkCreate(products)
+        // filtering the products which have status active.
+        productsData = productsData.filter((products) => products.status === PRODUCTS_STATUS.ACTIVE);
+        response.sendSuccessResponse(res, { productsData });
     } catch(error) {
         logger.error(`Error in add products service `, error);
         return response.sendErrorResponse(

@@ -22,22 +22,37 @@ const updateUsersService = async (req, res) => {
             return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
         }
 
+        // Here check only the valid users to update which is present in DB
+        const checkUserExist = usersData.map((users) => users.id);
+        const userDataToUpdate = await tblUsersMethod.fetchAll({ 
+            attributes: ['id'],
+            where : {id:  checkUserExist }, 
+            raw:true 
+        });
+
+        // Check whether the data of users to update is correct or not.
+        if(!userDataToUpdate.length) {
+            logger.error(`Wrong user ids ${checkUserExist} to update`);
+            return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
+        }
+
         // Check whether the user whoom logged in is admin or not, only admin has rights to update the users
         if(req.token.role === USER_ROLE.ADMIN) {
-            usersData.forEach(async (userToUpdate) => {
-                const user = await tblUsersMethod.fetchOne({ where : {id: userToUpdate.id }, raw:true })
-                if(user) {
-                    // Considered only username/email/mobile_no of user going to update by admin and admin by users id.
-                    const payload = {
-                        username: userToUpdate?.username,
-                        email: userToUpdate?.email,
-                        mobile_no: userToUpdate?.mobile_no,
-                        updated_at: Date.now(),
+            for(let i= 0; i < usersData.length; i++) {
+                for (j = 0; j < userDataToUpdate.length; j++) {
+                    if(usersData[i].id === userDataToUpdate[j].id) {
+                        // Considered only username/email/mobile_no of user going to update by admin and admin by users id.
+                        const payload = {
+                            username: usersData[i]?.username,
+                            email: usersData[i]?.email,
+                            mobile_no: usersData[i]?.mobile_no,
+                            updated_at: Date.now(),
+                        }
+                        //updating the users into the system
+                        await tblUsersMethod.update(payload, {where: { id: userDataToUpdate[j].id }});
                     }
-                    //updating the users into the system
-                    await tblUsersMethod.update(payload, {where: { id: userToUpdate.id }});
                 }
-            })
+            }
             logger.info(`Users data updated successfully`);
             return response.sendSuccessResponse(res, {Data: "Users are updated successfully"});
         }

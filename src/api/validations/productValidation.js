@@ -10,6 +10,9 @@ const productValidation = {
     ],
     addProducts: [
         body('products',"INVALID_REQUEST_DATA").exists({ checkFalsy: true}).isArray(),
+    ],
+    controlProducts: [
+        body('id', "INVALID_REQUEST_DATA").exists( { checkFalsy: true }).isInt(),
     ]
 };
 

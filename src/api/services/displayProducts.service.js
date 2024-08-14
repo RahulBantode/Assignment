@@ -1,5 +1,5 @@
 const tblProductsMethod = require('../methods/tblProducts.method');
-const { HTTP_ERRORS, ERROR_MESSAGES, USER_ROLE } = require('../../constants/apiConstants');
+const { HTTP_ERRORS, ERROR_MESSAGES, USER_ROLE, PRODUCTS_STATUS } = require('../../constants/apiConstants');
 const StandardResponse = require('../standardResponse');
 
 const response = new StandardResponse();
@@ -11,9 +11,9 @@ const logger = require('../../lib/logger')('displayProducts.service.js');
  */
 const displayProductsService = async (req, res) => {
     try {
-        // Check whether user is admin or not.
+        // Check whether user is admin or not, only admin has right to show products on
         if (req.token.role === USER_ROLE.ADMIN) {
-            const products = await tblProductsMethod.fetchAll();
+            const products = await tblProductsMethod.fetchAll({ where : { status: PRODUCTS_STATUS.ACTIVE }, raw: true });
             // If no products in system then it will respond as products are not available.
             if(!products) {
                 logger.error(`No products found...`);

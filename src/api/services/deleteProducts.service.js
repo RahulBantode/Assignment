@@ -11,7 +11,7 @@ const logger = require('../../lib/logger')('deleteProducts.service.js');
  * @param {*} res 
  * @returns Successful message of products deleted.
  */
-const deleteProductsService = (req,res) => {
+const deleteProductsService = async (req, res) => {
     // Accepting the products ids to delete e,g req.body
     // {  "productsIdsToDelete": [1,3]   }
     const { productsIdsToDelete } = req.body;
@@ -22,12 +22,29 @@ const deleteProductsService = (req,res) => {
             return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
         }
         
+        // Fetch the existed products to delete from DB.
+        const productsToDelete = await tblProductsMethod.fetchAll({ 
+                attributes: ['id'],
+                where : {id:  productsIdsToDelete }, 
+                raw:true 
+            }
+        )
+
+        // Check whether the data of products to delete is correct or not.
+        if(!productsToDelete.length) {
+            logger.error(`Wrong product ids ${productsIdsToDelete} to delete`);
+            return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
+        }
+
         // Check whether logged in user in admin or not, because only admin can delete the products data
         if(req.token.role === USER_ROLE.ADMIN) {
-            productsIdsToDelete.forEach(async (productId) => {
-                // deleting the products from system
-                await tblProductsMethod.delete({where: { id: productId }});
-            })
+            for(let i=0; i < productsIdsToDelete.length; i++) {
+                for(let j = 0; j < productsToDelete.length; j++) {
+                    if(productsIdsToDelete[i] === productsToDelete[j].id) {
+                        await tblProductsMethod.delete({ where : { id: productsToDelete[j].id }})
+                    }
+                }
+            }
             logger.info('Products deleted successfully');
             return response.sendSuccessResponse(res, {Data: 'Products are deleted successfully'});
         }

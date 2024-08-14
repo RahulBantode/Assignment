@@ -15,7 +15,7 @@ const userJwt = JSON.parse(process.env.USER_JWT);
  * @returns Returns authorization (jwt) token
  */
 const signInService = async (req, res) => {
-    const payload = {};
+    let payload = {};
     const { email, password } = req.body;
     try {
         // Check whether email and password is present in request body or not.
@@ -33,9 +33,11 @@ const signInService = async (req, res) => {
         //comparing the password with hash created password
         if(user) {
             if (await userAuthUtils.compare(password, user.password)) {
-                payload.userId = user.id;
-                payload.username = user.username;
-                payload.role = user.role;
+                payload = {
+                    userId: user.id,
+                    username: user.username,
+                    role: user.role
+                };
                 // generating the authorization token for the user.
                 const token = await userAuthUtils.generateToken(payload, userJwt.ACCESS_TOKEN_SECRET, userJwt.ACCESS_TOKEN_EXPIRY_DAY);
                 logger.info(`User ${user.username} signed in successfully`);

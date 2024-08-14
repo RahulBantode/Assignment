@@ -11,10 +11,11 @@ const logger = require('../../lib/logger')('updateUser.service.js');
  * @param {*} res 
  * @returns Successful message of users deleted.
  */
-const deleteUsersService = (req,res) => {
+const deleteUsersService = async (req,res) => {
     // Accepting the users ids to delete e,g req.body
     // {  "usersIdsToDelete": [5, 6]   }
-    const { usersIdsToDelete } = req.body;
+    let { usersIdsToDelete } = req.body;
+
     try {
         // check whether the usersIdsToDeleted array empty or not.
         if(!usersIdsToDelete.length) {
@@ -22,12 +23,29 @@ const deleteUsersService = (req,res) => {
                 return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
         }
         
+        // Fetch the existed users to delete from DB.
+        const usersToDelete = await tblUsersMethod.fetchAll({ 
+                attributes: ['id'],
+                where : {id:  usersIdsToDelete }, 
+                raw:true 
+            }
+        )
+
+        // Check whether the data of users to delete is correct or not.
+        if(!usersToDelete.length) {
+            logger.error(`Wrong user ids ${usersIdsToDelete} to delete`);
+            return response.sendErrorResponse(res, HTTP_ERRORS.BAD_REQUEST, ERROR_MESSAGES.INVALID_DATA_FORMAT);
+        }
+
         // Check whether logged in user in admin or not, because only admin can delete the users.
         if(req.token.role === USER_ROLE.ADMIN) {
-            usersIdsToDelete.forEach(async (userId) => {
-                // deleting the users from system.
-                await tblUsersMethod.delete({where: { id: userId }});
-            })
+            for(let i=0; i < usersIdsToDelete.length; i++) {
+                for(let j = 0; j < usersToDelete.length; j++) {
+                    if(usersIdsToDelete[i] === usersToDelete[j].id) {
+                        await tblUsersMethod.delete({ where : { id: usersToDelete[j].id }})
+                    }
+                }
+            }
             logger.info('Users deleted successfully');
             return response.sendSuccessResponse(res, {Data: 'Users are deleted successfully'});
         }

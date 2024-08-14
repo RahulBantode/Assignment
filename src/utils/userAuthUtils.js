@@ -3,6 +3,7 @@ const md5 = require('md5');
 
 
 exports.userAuthUtils = {
+    // Generating the JWT access token
     generateToken: async(payload, secret, expiryTime) => {
         try {
             const token = jwt.sign(
@@ -18,6 +19,7 @@ exports.userAuthUtils = {
         }
     },
 
+    // Checking the token send by user is verified or not
     verifyToken: (token,secret) => {
         try {
             const tokenPayload = jwt.verify(token, secret);
@@ -27,6 +29,7 @@ exports.userAuthUtils = {
         }
     },
 
+    // Comparing the plain text password with its associated hash password.
     compare: async (password, hash) => {
         try {
             return md5(password) === hash;
@@ -35,5 +38,7 @@ exports.userAuthUtils = {
             throw error;
         }
     },
+
+    // Creating the plain text password to hash.
     hashPassword: async (password) => md5(password),
 }
