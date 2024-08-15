@@ -34,7 +34,7 @@ logger = (moduleName) => {
         transports: [
             new winston.transports.Console({ level: process.env.LOGGER_LEVEL || 'debug' }),
             new DailyRotateFile({
-                filename: 'proconf-api-logs-%DATE%.log',
+                filename: 'backend-api-logs-%DATE%.log',
                 datePattern: 'YYYY-MM-DD',
                 frequency: '1m',
                 dirname: logDir,
