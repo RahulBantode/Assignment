@@ -1,5 +1,6 @@
 const { body } = require('express-validator');
 
+// product validaiton rules.
 const productValidation = {
     updateProducts: [
         body('productsDetails', "INVALID_REQUEST_DATA").exists({ checkFalsy: true}).isArray(),

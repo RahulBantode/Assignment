@@ -10,6 +10,7 @@ class App {
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.json());
         
+        // To enable cross-origin resource sharing 
         this.app.use(cors());
         // Initialization of ApiRoutes class.
         this.apiRoutes = new ApiRoutes(this.app);

@@ -1,5 +1,6 @@
 const { body } = require('express-validator');
 
+// user validation rules
 const userValidation = {
     signUpUser: [
         body('username', 'INVALID_REQUEST_DATA').exists({ checkFalsy: true}),

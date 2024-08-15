@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 const StandardResponse = require('../standardResponse');
 const { HTTP_ERRORS } = require('../../constants/apiConstants');
 
+// Middleware function to validate the rules which is defined are verified or not and respond accordingly.
 const requestValidation = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

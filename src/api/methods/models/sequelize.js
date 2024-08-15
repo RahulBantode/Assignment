@@ -1,6 +1,7 @@
 const connection = require('./dbConfigurations');
 const logger = require('../../../lib/logger')('sequelize.js');
 
+// Class to establish the db connection and once the object is created send it back to caller.
 class Sequel {
     static async getConnection() {
         if (!Sequel.connection) {
